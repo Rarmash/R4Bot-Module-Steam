@@ -1,0 +1,17 @@
+﻿{
+  "id": "steam",
+  "name": "Steam",
+  "version": "1.0.0",
+  "entrypoint": "cog",
+  "description": "Steam profile, pricing, and account linking module for R4Bot.",
+  "author": "Rarmash",
+  "min_core_version": "2.0",
+  "required_settings": [
+    "accent_color"
+  ],
+  "required_services": [
+    "config",
+    "firebase",
+    "secrets"
+  ]
+}
