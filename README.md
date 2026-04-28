@@ -8,8 +8,13 @@
 - добавляет `/steam connect`
 - привязывает Steam-профиль к Discord-учётной записи
 - показывает цену игр и данные Steam-профиля
+- если установлен модуль `profile`, добавляет в него поле Steam-профиля
 - поддерживает vanity username и fallback через Steam Community
 - использует runtime services из `bot.r4_services`
+
+## Интеграции
+- модуль может зарегистрировать profile-provider для `/profile`
+- если `profile` не установлен, это не считается ошибкой и Steam-модуль продолжает работать сам по себе
 
 ## Секреты
 API-ключ Steam хранится в:
@@ -34,7 +39,8 @@ config/secrets/steam.json
 
 ## Структура
 - `module.json` — метаданные модуля
-- `cog.py` — Discord cog
+- `cog.py` — команды Steam и основное поведение модуля
+- `service.py` — регистрация Steam-поля для модуля профиля
 - `steam.secrets.example.json` — пример файла секретов
 - `requirements.txt` — зависимости для IDE и локальной проверки
 

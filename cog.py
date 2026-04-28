@@ -6,6 +6,7 @@ import discord
 import requests
 from discord.commands import SlashCommandGroup
 from discord.ext import commands
+from .service import SteamService
 
 STEAM_API_BASE = 'https://api.steampowered.com'
 MODULE_ID = 'steam'
@@ -34,6 +35,7 @@ STEAM_COMMUNITY_HEADERS = {
 
 class Steam(commands.Cog):
     steam = SlashCommandGroup('steam', 'Команды по Steam')
+    module_id = MODULE_ID
 
     def __init__(self, bot):
         self.bot = bot
@@ -44,10 +46,11 @@ class Steam(commands.Cog):
         self.api_key = self.services.secrets.get(MODULE_ID, 'api_key')
         if not self.api_key:
             raise RuntimeError('Steam API key is not configured. Use config/secrets/steam.json')
-        self.services.profile_extensions.register_provider(MODULE_ID, self.build_profile_fields)
+        self.service = SteamService(self)
+        self.service.register_hooks()
 
     def cog_unload(self):
-        self.services.profile_extensions.unregister_provider(MODULE_ID)
+        self.service.unregister_hooks()
 
     def get_server_data(self, guild_id: int):
         return self.services.config.get_servers_data().get(str(guild_id))
@@ -121,26 +124,6 @@ class Steam(commands.Cog):
         payload = self.steam_api_get('ISteamUser/GetPlayerSummaries/v0002/', steamids=steam_id)
         players = payload.get('response', {}).get('players', [])
         return players[0] if players else None
-
-    def build_profile_fields(self, ctx, member, user_data, server_data):
-        steam_id = user_data.get('steam')
-        if not steam_id:
-            return []
-
-        steam_label = str(steam_id)
-        try:
-            summary = self.get_player_summary(str(steam_id))
-            if summary and summary.get('personaname'):
-                steam_label = summary['personaname']
-        except Exception:
-            pass
-
-        return [
-            {
-                'name': 'Профиль Steam',
-                'value': f'[{steam_label}](https://steamcommunity.com/profiles/{steam_id})',
-            }
-        ]
 
     def get_player_bans(self, steam_id):
         payload = self.steam_api_get('ISteamUser/GetPlayerBans/v1/', steamids=steam_id)
